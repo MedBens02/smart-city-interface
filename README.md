@@ -374,7 +374,7 @@ npm run lint
 
 ## License
 
-[Add your license here]
+Bensaddik Mohamed
 
 ## Support
 
