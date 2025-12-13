@@ -13,21 +13,19 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Building2, LogOut, User, Bell, Settings, FileText, CheckCheck } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import { useRouter } from "next/navigation"
 
-interface HeaderProps {
-  onNavigate: (view: "dashboard" | "claims" | "profile") => void
-}
-
-export default function Header({ onNavigate }: HeaderProps) {
+export default function Header() {
   const { user, logout } = useAuth()
   const { notifications, unreadCount, markNotificationRead, markAllNotificationsRead } = useClaims()
   const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const router = useRouter()
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         <button
-          onClick={() => onNavigate("dashboard")}
+          onClick={() => router.push("/")}
           className="flex items-center gap-3 transition-opacity hover:opacity-80"
         >
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
@@ -78,7 +76,7 @@ export default function Header({ onNavigate }: HeaderProps) {
                       className={`flex flex-col items-start gap-1 px-3 py-3 ${!notification.read ? "bg-primary/5" : ""}`}
                       onClick={() => {
                         markNotificationRead(notification.id)
-                        onNavigate("claims")
+                        router.push("/claims")
                         setNotificationsOpen(false)
                       }}
                     >
@@ -108,11 +106,11 @@ export default function Header({ onNavigate }: HeaderProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => onNavigate("profile")}>
+              <DropdownMenuItem onClick={() => router.push("/profile")}>
                 <Settings className="mr-2 h-4 w-4" />
                 Edit Profile
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onNavigate("claims")}>
+              <DropdownMenuItem onClick={() => router.push("/claims")}>
                 <FileText className="mr-2 h-4 w-4" />
                 My Claims
               </DropdownMenuItem>

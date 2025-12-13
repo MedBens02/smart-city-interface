@@ -29,15 +29,17 @@ const statusConfig: Record<
   ClaimStatus,
   { label: string; icon: React.ElementType; variant: "default" | "secondary" | "destructive" | "outline" }
 > = {
-  pending: { label: "Pending", icon: Clock, variant: "secondary" },
+  submitted: { label: "Submitted", icon: Clock, variant: "secondary" },
+  received: { label: "Received", icon: CheckCircle2, variant: "secondary" },
+  assigned: { label: "Assigned", icon: Clock, variant: "default" },
   in_progress: { label: "In Progress", icon: Loader2, variant: "default" },
+  pending_info: { label: "Pending Info", icon: AlertCircle, variant: "secondary" },
   resolved: { label: "Resolved", icon: CheckCircle2, variant: "outline" },
-  closed: { label: "Closed", icon: XCircle, variant: "secondary" },
-  rejected: { label: "Rejected", icon: AlertCircle, variant: "destructive" },
+  rejected: { label: "Rejected", icon: XCircle, variant: "destructive" },
 }
 
 export default function ClaimsHistory({ onBack, onViewClaim }: ClaimsHistoryProps) {
-  const { claims } = useClaims()
+  const { claims, isLoading, error } = useClaims()
 
   return (
     <div className="min-h-screen bg-background">
@@ -52,7 +54,23 @@ export default function ClaimsHistory({ onBack, onViewClaim }: ClaimsHistoryProp
           <p className="text-muted-foreground">View and manage your submitted claims</p>
         </div>
 
-        {claims.length === 0 ? (
+        {isLoading ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <Loader2 className="mb-4 h-12 w-12 animate-spin text-muted-foreground" />
+              <h3 className="mb-2 text-lg font-semibold text-foreground">Loading claims...</h3>
+              <p className="text-center text-muted-foreground">Please wait while we fetch your claims.</p>
+            </CardContent>
+          </Card>
+        ) : error ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <AlertCircle className="mb-4 h-12 w-12 text-destructive" />
+              <h3 className="mb-2 text-lg font-semibold text-foreground">Error loading claims</h3>
+              <p className="text-center text-muted-foreground">{error}</p>
+            </CardContent>
+          </Card>
+        ) : claims.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <FileText className="mb-4 h-12 w-12 text-muted-foreground" />

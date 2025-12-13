@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { useClaims } from "@/contexts/claims-context"
 import { Button } from "@/components/ui/button"
@@ -19,12 +18,10 @@ import {
   FileText,
   Clock,
   CheckCircle2,
+  Lightbulb,
+  TrafficCone,
 } from "lucide-react"
-import Header from "./header"
-import ClaimForm from "./claim-form"
-import ClaimsHistory from "./claims-history"
-import ClaimDetail from "./claim-detail"
-import ProfilePage from "./profile-page"
+import { useRouter } from "next/navigation"
 
 const services = [
   {
@@ -93,69 +90,34 @@ const services = [
     url: "https://cleanliness.smartcity.gov",
     color: "bg-teal-500/10 text-teal-600",
   },
+  {
+    id: "smart-utilities",
+    name: "Smart Utilities",
+    description: "Gestion intelligente eau/électricité, compteurs, facturation",
+    icon: Lightbulb,
+    url: "https://utilities.smartcity.gov",
+    color: "bg-indigo-500/10 text-indigo-600",
+  },
+  {
+    id: "smart-traffic",
+    name: "Smart Traffic",
+    description: "Gestion intelligente du trafic, feux, capteurs, congestion",
+    icon: TrafficCone,
+    url: "https://traffic.smartcity.gov",
+    color: "bg-rose-500/10 text-rose-600",
+  },
 ]
-
-type View = "dashboard" | "claims" | "claim-detail" | "new-claim" | "profile"
 
 export default function Dashboard() {
   const { user } = useAuth()
   const { claims } = useClaims()
-  const [currentView, setCurrentView] = useState<View>("dashboard")
-  const [selectedClaimId, setSelectedClaimId] = useState<string | null>(null)
+  const router = useRouter()
 
   const pendingClaims = claims.filter((c) => c.status === "pending" || c.status === "in_progress").length
   const resolvedClaims = claims.filter((c) => c.status === "resolved").length
 
-  const handleNavigate = (view: "dashboard" | "claims" | "profile") => {
-    setCurrentView(view)
-    setSelectedClaimId(null)
-  }
-
-  const handleViewClaim = (claimId: string) => {
-    setSelectedClaimId(claimId)
-    setCurrentView("claim-detail")
-  }
-
-  // Render different views
-  if (currentView === "new-claim") {
-    return (
-      <>
-        <Header onNavigate={handleNavigate} />
-        <ClaimForm onBack={() => setCurrentView("dashboard")} />
-      </>
-    )
-  }
-
-  if (currentView === "claims") {
-    return (
-      <>
-        <Header onNavigate={handleNavigate} />
-        <ClaimsHistory onBack={() => setCurrentView("dashboard")} onViewClaim={handleViewClaim} />
-      </>
-    )
-  }
-
-  if (currentView === "claim-detail" && selectedClaimId) {
-    return (
-      <>
-        <Header onNavigate={handleNavigate} />
-        <ClaimDetail claimId={selectedClaimId} onBack={() => setCurrentView("claims")} />
-      </>
-    )
-  }
-
-  if (currentView === "profile") {
-    return (
-      <>
-        <Header onNavigate={handleNavigate} />
-        <ProfilePage onBack={() => setCurrentView("dashboard")} />
-      </>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-background">
-      <Header onNavigate={handleNavigate} />
 
       <main className="mx-auto max-w-7xl px-4 py-8">
         {/* Welcome Section */}
@@ -165,11 +127,11 @@ export default function Dashboard() {
             <p className="text-muted-foreground">Access city services or manage your claims</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setCurrentView("claims")}>
+            <Button variant="outline" onClick={() => router.push("/claims")}>
               <FileText className="mr-2 h-4 w-4" />
               My Claims
             </Button>
-            <Button onClick={() => setCurrentView("new-claim")}>
+            <Button onClick={() => router.push("/claims/new")}>
               <MessageSquarePlus className="mr-2 h-4 w-4" />
               New Claim
             </Button>
@@ -180,7 +142,7 @@ export default function Dashboard() {
         <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card
             className="cursor-pointer transition-all hover:border-primary/50"
-            onClick={() => setCurrentView("claims")}
+            onClick={() => router.push("/claims")}
           >
             <CardContent className="flex items-center gap-4 pt-6">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-500/10">
@@ -194,7 +156,7 @@ export default function Dashboard() {
           </Card>
           <Card
             className="cursor-pointer transition-all hover:border-primary/50"
-            onClick={() => setCurrentView("claims")}
+            onClick={() => router.push("/claims")}
           >
             <CardContent className="flex items-center gap-4 pt-6">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-500/10">
@@ -208,7 +170,7 @@ export default function Dashboard() {
           </Card>
           <Card
             className="cursor-pointer transition-all hover:border-primary/50"
-            onClick={() => setCurrentView("claims")}
+            onClick={() => router.push("/claims")}
           >
             <CardContent className="flex items-center gap-4 pt-6">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/10">
@@ -222,7 +184,7 @@ export default function Dashboard() {
           </Card>
           <Card
             className="cursor-pointer transition-all hover:border-primary/50"
-            onClick={() => setCurrentView("new-claim")}
+            onClick={() => router.push("/claims/new")}
           >
             <CardContent className="flex items-center gap-4 pt-6">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">

@@ -1,7 +1,7 @@
 export interface ServiceField {
   name: string
   label: string
-  type: "text" | "number" | "date" | "select" | "textarea" | "qr-scanner"
+  type: "text" | "number" | "date" | "select" | "textarea" | "qr-scanner" | "time"
   placeholder?: string
   required?: boolean
   options?: { value: string; label: string }[]
@@ -287,5 +287,316 @@ export const serviceConfigs: ServiceConfig[] = [
     id: "proprete-urbaine",
     name: "Service Propreté Urbaine",
     extraFields: [],
+  },
+  {
+    id: "smart-traffic",
+    name: "Smart Traffic",
+    extraFields: [
+      {
+        name: "incidentType",
+        label: "Type d'incident",
+        type: "select",
+        required: true,
+        options: [
+          { value: "traffic_lights_malfunction", label: "Dysfonctionnement Feux/Capteurs" },
+          { value: "incorrect_information", label: "Information Erronée (App/Panneaux)" },
+          { value: "unmanaged_congestion", label: "Congestion Non Gérée" },
+        ],
+      },
+      {
+        name: "incidentDate",
+        label: "Date de l'incident",
+        type: "date",
+        required: true,
+      },
+      {
+        name: "incidentTime",
+        label: "Heure de l'incident",
+        type: "time",
+        required: true,
+        conditionalDisplay: {
+          dependsOn: "incidentType",
+          showWhen: ["traffic_lights_malfunction", "unmanaged_congestion"],
+        },
+      },
+      {
+        name: "failureTypes",
+        label: "Type de dysfonctionnement",
+        type: "select",
+        required: true,
+        options: [
+          { value: "FEUX_DEFECTUEUX", label: "Feux défectueux" },
+          { value: "CYCLES_INADAPTES", label: "Cycles inadaptés" },
+          { value: "CAPTEUR_HS", label: "Capteur hors service" },
+          { value: "AUTRE", label: "Autre" },
+        ],
+        conditionalDisplay: {
+          dependsOn: "incidentType",
+          showWhen: "traffic_lights_malfunction",
+        },
+      },
+      {
+        name: "intersectionId",
+        label: "Identifiant Intersection",
+        type: "text",
+        placeholder: "Ex: INT-001",
+        required: false,
+        conditionalDisplay: {
+          dependsOn: "failureTypes",
+          showWhen: ["FEUX_DEFECTUEUX", "CYCLES_INADAPTES"],
+        },
+      },
+      {
+        name: "failureTypes",
+        label: "Type d'erreur",
+        type: "select",
+        required: true,
+        options: [
+          { value: "INFO_ERRONEE", label: "Information erronée" },
+          { value: "ABSENCE_ALERTE", label: "Absence d'alerte" },
+          { value: "PANNEAU_OBSOLETE", label: "Panneau obsolète" },
+          { value: "AUTRE", label: "Autre" },
+        ],
+        conditionalDisplay: {
+          dependsOn: "incidentType",
+          showWhen: "incorrect_information",
+        },
+      },
+      {
+        name: "failureTypes",
+        label: "Type de problème",
+        type: "select",
+        required: true,
+        options: [
+          { value: "CONGESTION_NON_DETECTEE", label: "Congestion non détectée" },
+          { value: "NON_INTERVENTION", label: "Non intervention" },
+          { value: "MAUVAISE_REGULATION", label: "Mauvaise régulation" },
+          { value: "AUTRE", label: "Autre" },
+        ],
+        conditionalDisplay: {
+          dependsOn: "incidentType",
+          showWhen: "unmanaged_congestion",
+        },
+      },
+      {
+        name: "impacts",
+        label: "Impact constaté",
+        type: "select",
+        required: true,
+        options: [
+          { value: "RETARD_MAJEUR", label: "Retard majeur" },
+          { value: "RISQUE_ACCIDENT", label: "Risque d'accident" },
+          { value: "EMBOUTEILLAGE", label: "Embouteillage" },
+          { value: "AUTRE", label: "Autre" },
+        ],
+        conditionalDisplay: {
+          dependsOn: "incidentType",
+          showWhen: "traffic_lights_malfunction",
+        },
+      },
+      {
+        name: "impacts",
+        label: "Impact constaté",
+        type: "select",
+        required: true,
+        options: [
+          { value: "PREJUDICE_ECONOMIQUE", label: "Préjudice économique" },
+          { value: "RETARD", label: "Retard" },
+          { value: "CONFUSION", label: "Confusion usagers" },
+          { value: "AUTRE", label: "Autre" },
+        ],
+        conditionalDisplay: {
+          dependsOn: "incidentType",
+          showWhen: "incorrect_information",
+        },
+      },
+      {
+        name: "impacts",
+        label: "Impact constaté",
+        type: "select",
+        required: true,
+        options: [
+          { value: "RISQUE_ACCIDENT", label: "Risque d'accident" },
+          { value: "RETARD_MAJEUR", label: "Retard majeur" },
+          { value: "POLLUTION", label: "Pollution atmosphérique" },
+          { value: "AUTRE", label: "Autre" },
+        ],
+        conditionalDisplay: {
+          dependsOn: "incidentType",
+          showWhen: "unmanaged_congestion",
+        },
+      },
+    ],
+  },
+  {
+    id: "smart-utilities",
+    name: "Smart Utilities",
+    extraFields: [
+      {
+        name: "issueType",
+        label: "Type de problème",
+        type: "select",
+        required: true,
+        options: [
+          { value: "electricity_issue", label: "Problème Électrique (Smart Grid)" },
+          { value: "water_issue", label: "Problème Eau (Fuite/Vanne)" },
+          { value: "billing_dispute", label: "Contestation Facturation (Eau/Élec)" },
+        ],
+      },
+      {
+        name: "affectedServices",
+        label: "Service affecté",
+        type: "select",
+        required: true,
+        options: [
+          { value: "ELECTRICITY", label: "Électricité" },
+        ],
+        conditionalDisplay: {
+          dependsOn: "issueType",
+          showWhen: "electricity_issue",
+        },
+      },
+      {
+        name: "affectedServices",
+        label: "Service affecté",
+        type: "select",
+        required: true,
+        options: [
+          { value: "WATER", label: "Eau" },
+        ],
+        conditionalDisplay: {
+          dependsOn: "issueType",
+          showWhen: "water_issue",
+        },
+      },
+      {
+        name: "affectedServices",
+        label: "Service affecté",
+        type: "select",
+        required: true,
+        options: [
+          { value: "WATER", label: "Eau" },
+          { value: "ELECTRICITY", label: "Électricité" },
+          { value: "BOTH", label: "Eau et Électricité" },
+        ],
+        conditionalDisplay: {
+          dependsOn: "issueType",
+          showWhen: "billing_dispute",
+        },
+      },
+      {
+        name: "meterIdElec",
+        label: "Numéro de compteur électricité",
+        type: "text",
+        placeholder: "Ex: ELEC-12345",
+        required: true,
+        validationRegex: "^ELEC-\\d{5}$",
+        conditionalDisplay: {
+          dependsOn: "issueType",
+          showWhen: "electricity_issue",
+        },
+      },
+      {
+        name: "electricityIssues",
+        label: "Problème électrique",
+        type: "select",
+        required: true,
+        options: [
+          { value: "COUPURE_INTEMPESTIVE", label: "Coupure intempestive" },
+          { value: "SMART_PLUG_DEFAILLANT", label: "Prise intelligente défaillante" },
+          { value: "COMPTEUR_INTELLIGENT_HS", label: "Compteur intelligent HS" },
+          { value: "SURTENSION", label: "Surtension" },
+          { value: "AUTRE", label: "Autre" },
+        ],
+        conditionalDisplay: {
+          dependsOn: "issueType",
+          showWhen: "electricity_issue",
+        },
+      },
+      {
+        name: "meterIdWater",
+        label: "Numéro de compteur eau",
+        type: "text",
+        placeholder: "Ex: EAU-67890",
+        required: true,
+        validationRegex: "^EAU-\\d{5}$",
+        conditionalDisplay: {
+          dependsOn: "issueType",
+          showWhen: "water_issue",
+        },
+      },
+      {
+        name: "waterIssues",
+        label: "Problème d'eau",
+        type: "select",
+        required: true,
+        options: [
+          { value: "ELECTROVANNE_FERMEE_ERREUR", label: "Électrovanne fermée par erreur" },
+          { value: "FUITE_NON_DETECTEE", label: "Fuite non détectée" },
+          { value: "PRESSION_ANORMALE", label: "Pression anormale" },
+          { value: "COMPTEUR_BLOQUE", label: "Compteur bloqué" },
+          { value: "AUTRE", label: "Autre" },
+        ],
+        conditionalDisplay: {
+          dependsOn: "issueType",
+          showWhen: "water_issue",
+        },
+      },
+      {
+        name: "periodStart",
+        label: "Début de période",
+        type: "date",
+        required: true,
+        conditionalDisplay: {
+          dependsOn: "issueType",
+          showWhen: "billing_dispute",
+        },
+      },
+      {
+        name: "periodEnd",
+        label: "Fin de période",
+        type: "date",
+        required: true,
+        conditionalDisplay: {
+          dependsOn: "issueType",
+          showWhen: "billing_dispute",
+        },
+      },
+      {
+        name: "contestedConsumptionWater",
+        label: "Consommation eau contestée (m³)",
+        type: "number",
+        placeholder: "Ex: 12.5",
+        required: false,
+        conditionalDisplay: {
+          dependsOn: "issueType",
+          showWhen: "billing_dispute",
+        },
+      },
+      {
+        name: "contestedConsumptionElec",
+        label: "Consommation électricité contestée (kWh)",
+        type: "number",
+        placeholder: "Ex: 150.0",
+        required: false,
+        conditionalDisplay: {
+          dependsOn: "issueType",
+          showWhen: "billing_dispute",
+        },
+      },
+      {
+        name: "requestedResolution",
+        label: "Résolution demandée",
+        type: "select",
+        required: true,
+        options: [
+          { value: "REPARATION", label: "Réparation" },
+          { value: "REMISE_EN_SERVICE", label: "Remise en service" },
+          { value: "REVISION_FACTURE", label: "Révision facture" },
+          { value: "INDEMNISATION", label: "Indemnisation" },
+          { value: "AUTRE", label: "Autre" },
+        ],
+      },
+    ],
   },
 ]

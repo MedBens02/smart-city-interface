@@ -1,6 +1,6 @@
 // Types for claims, messages, and notifications
 
-export type ClaimStatus = "pending" | "in_progress" | "resolved" | "closed" | "rejected"
+export type ClaimStatus = "submitted" | "received" | "assigned" | "in_progress" | "pending_info" | "resolved" | "rejected"
 
 export interface ClaimMessage {
   id: string
@@ -10,19 +10,37 @@ export interface ClaimMessage {
   senderType: "citizen" | "service"
   content: string
   timestamp: string
+  attachments?: Array<{
+    url: string
+    fileName: string
+    fileType: string
+  }>
 }
 
 export interface Claim {
   id: string
+  claimNumber?: string
   userId: string
   serviceType: string
   serviceName: string
   title: string
   description: string
   location: string | null
+  latitude?: number | null
+  longitude?: number | null
+  priority?: "low" | "medium" | "high" | "urgent"
   images: string[]
-  extraData: Record<string, string>
+  extraData: Record<string, any>
   status: ClaimStatus
+  assignedTo?: {
+    operatorId: string
+    operatorName: string
+  }
+  resolution?: {
+    summary: string
+    actionsTaken: string[]
+    closingMessage: string
+  }
   createdAt: string
   updatedAt: string
   messages: ClaimMessage[]

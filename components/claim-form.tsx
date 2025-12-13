@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState, useCallback } from "react"
 import { useAuth } from "@/contexts/auth-context"
+import { useAuth as useClerkAuth } from "@clerk/nextjs"
 import { useClaims } from "@/contexts/claims-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -34,6 +35,7 @@ interface CommonFormData {
 
 export default function ClaimForm({ onBack }: ClaimFormProps) {
   const { user } = useAuth()
+  const { getToken } = useClerkAuth()
   const { addClaim } = useClaims()
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -165,10 +167,17 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
       console.log(JSON.stringify(payload, null, 2))
       console.log("=============================")
 
+      const token = await getToken()
+      if (!token) {
+        console.error("No authentication token available")
+        throw new Error("Not authenticated")
+      }
+
       const response = await fetch("http://localhost:8080/api/claims", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       })
