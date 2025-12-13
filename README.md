@@ -372,9 +372,6 @@ npm run lint
 3. Test thoroughly
 4. Submit a pull request
 
-## License
-
-Bensaddik Mohamed
 
 ## Support
 
