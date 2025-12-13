@@ -173,7 +173,7 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
         throw new Error("Not authenticated")
       }
 
-      const response = await fetch("http://localhost:8080/api/claims", {
+      const response = await fetch("http://localhost:8080/api/claim/ingest", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
