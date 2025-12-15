@@ -31,7 +31,7 @@ const services = [
     icon: Zap,
     url: process.env.NODE_ENV === 'production'
       ? "https://electricity.smartcity.gov"
-      : "http://localhost:3001",
+      : "https://electricity-service.vercel.app/",
     color: "bg-amber-500/10 text-amber-600",
   },
   {
