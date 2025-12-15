@@ -29,9 +29,7 @@ const services = [
     name: "Électricité",
     description: "Factures d'électricité, pannes, relevés de compteur",
     icon: Zap,
-    url: process.env.NODE_ENV === 'production'
-      ? "https://electricity.smartcity.gov"
-      : "https://electricity-service.vercel.app/",
+    url: "https://electricity-service.vercel.app/",
     color: "bg-amber-500/10 text-amber-600",
   },
   {
