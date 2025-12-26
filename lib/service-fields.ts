@@ -15,53 +15,15 @@ export interface ServiceField {
 export interface ServiceConfig {
   id: string
   name: string
+  code: string
   extraFields: ServiceField[]
 }
 
 export const serviceConfigs: ServiceConfig[] = [
   {
-    id: "electricite",
-    name: "Électricité",
-    extraFields: [
-      {
-        name: "accountNumber",
-        label: "Numéro de compte électricité",
-        type: "text",
-        placeholder: "ex: ELC-789012",
-        required: true,
-      },
-      {
-        name: "outageDate",
-        label: "Date de la panne (si applicable)",
-        type: "date",
-        required: false,
-      },
-      {
-        name: "issueType",
-        label: "Type de problème",
-        type: "select",
-        required: true,
-        options: [
-          { value: "outage", label: "Panne de courant" },
-          { value: "voltage", label: "Fluctuation de tension" },
-          { value: "billing", label: "Problème de facturation" },
-          { value: "meter", label: "Problème de compteur" },
-          { value: "connection", label: "Nouvelle connexion" },
-          { value: "other", label: "Autre" },
-        ],
-      },
-      {
-        name: "affectedAppliances",
-        label: "Appareils affectés (si applicable)",
-        type: "textarea",
-        placeholder: "Liste des appareils endommagés...",
-        required: false,
-      },
-    ],
-  },
-  {
     id: "smart-parking",
     name: "Smart Parking",
+    code: "SPK",
     extraFields: [
       {
         name: "issueCategory",
@@ -108,6 +70,7 @@ export const serviceConfigs: ServiceConfig[] = [
   {
     id: "incendies",
     name: "Incendies",
+    code: "RFM",
     extraFields: [
       // Master field - always visible
       {
@@ -239,21 +202,25 @@ export const serviceConfigs: ServiceConfig[] = [
   {
     id: "touriste",
     name: "Touriste",
+    code: "TRM",
     extraFields: [],
   },
   {
     id: "tri-dechets",
     name: "Tri des Déchets",
+    code: "ENV",
     extraFields: [],
   },
   {
     id: "eau-potable",
     name: "Gestion de l'Eau Potable",
+    code: "WM",
     extraFields: [],
   },
   {
     id: "patrimoine",
     name: "Service Gestion Patrimoine",
+    code: "PAT",
     extraFields: [
       {
         name: "patrimoineType",
@@ -286,11 +253,13 @@ export const serviceConfigs: ServiceConfig[] = [
   {
     id: "proprete-urbaine",
     name: "Service Propreté Urbaine",
+    code: "PRP",
     extraFields: [],
   },
   {
     id: "smart-traffic",
     name: "Smart Traffic",
+    code: "STR",
     extraFields: [
       {
         name: "incidentType",
@@ -431,6 +400,7 @@ export const serviceConfigs: ServiceConfig[] = [
   {
     id: "smart-utilities",
     name: "Smart Utilities",
+    code: "WEM",
     extraFields: [
       {
         name: "issueType",
@@ -598,5 +568,29 @@ export const serviceConfigs: ServiceConfig[] = [
         ],
       },
     ],
+  },
+  {
+    id: "gestion-dechets-gdd",
+    name: "Gestion de Déchets",
+    code: "GDD",
+    extraFields: [],
+  },
+  {
+    id: "mobilite-transport",
+    name: "Mobilité & Transport Urbain (Bus)",
+    code: "MTU",
+    extraFields: [],
+  },
+  {
+    id: "gestion-dechets-agd",
+    name: "Gestion de Déchets Avancée",
+    code: "AGD",
+    extraFields: [],
+  },
+  {
+    id: "eclairage-public",
+    name: "Gestion d'Éclairage Public",
+    code: "AEP",
+    extraFields: [],
   },
 ]

@@ -9,7 +9,7 @@ export interface CreateClaimPayload {
     phone: string | null
   }
   claim: {
-    serviceType: string
+    serviceType: string // Service CODE (3-letter code, e.g., 'SPK', 'RFM', 'TRM')
     title: string
     description: string
     priority: "low" | "medium" | "high" | "urgent"

@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft, ArrowRight, Upload, X, MapPin, CheckCircle2, Loader2 } from "lucide-react"
 import { serviceConfigs, type ServiceField } from "@/lib/service-fields"
+import { getServiceCodeById } from "@/lib/service-code-mapper"
 import LocationPicker from "./location-picker"
 import QRScannerField from "./qr-scanner-field"
 import { uploadMultipleFiles, type UploadedFile } from "@/lib/upload-helpers"
@@ -127,7 +128,7 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
         phone: user?.phone || null,
       },
       claim: {
-        serviceType: commonData.serviceType,
+        serviceType: getServiceCodeById(commonData.serviceType),
         title: commonData.title,
         description: commonData.description,
         priority: commonData.priority,
