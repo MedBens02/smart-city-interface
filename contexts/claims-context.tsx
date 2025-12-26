@@ -4,19 +4,18 @@ import { createContext, useContext, useState, useCallback, useEffect, type React
 import type { Claim, ClaimMessage, Notification } from "@/lib/types"
 import { MOCK_CLAIMS, MOCK_NOTIFICATIONS } from "@/lib/mock/data"
 
-// COMMENTED OUT - No backend available
-// import { useAuth as useClerkAuth } from "@clerk/nextjs"
-// import {
-//   fetchClaims,
-//   fetchClaimById,
-//   sendMessage as apiSendMessage,
-//   type SendMessagePayload,
-// } from "@/lib/api/claims"
-// import {
-//   fetchNotifications,
-//   markNotificationRead as apiMarkNotificationRead,
-//   markAllNotificationsRead as apiMarkAllNotificationsRead,
-// } from "@/lib/api/notifications"
+import { useAuth as useClerkAuth } from "@clerk/nextjs"
+import {
+  fetchClaims,
+  fetchClaimById,
+  sendMessage as apiSendMessage,
+  type SendMessagePayload,
+} from "@/lib/api/claims"
+import {
+  fetchNotifications,
+  markNotificationRead as apiMarkNotificationRead,
+  markAllNotificationsRead as apiMarkAllNotificationsRead,
+} from "@/lib/api/notifications"
 
 interface ClaimsContextType {
   claims: Claim[]
@@ -25,6 +24,7 @@ interface ClaimsContextType {
   isLoading: boolean
   error: string | null
   refreshClaims: () => Promise<void>
+  refreshClaimById: (claimId: string) => Promise<void>
   getClaim: (id: string) => Claim | undefined
   addClaim: (claimData: any) => Claim
   sendMessage: (claimId: string, content: string, attachments?: any[]) => Promise<void>
@@ -34,11 +34,10 @@ interface ClaimsContextType {
 
 const ClaimsContext = createContext<ClaimsContextType | undefined>(undefined)
 
-const POLLING_INTERVAL = 30000 // 30 seconds
+const POLLING_INTERVAL = 10000 // 10 seconds
 
 export function ClaimsProvider({ children }: { children: ReactNode }) {
-  // COMMENTED OUT - No backend available
-  // const { getToken } = useClerkAuth()
+  const { getToken } = useClerkAuth()
   const [claims, setClaims] = useState<Claim[]>([])
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -46,25 +45,25 @@ export function ClaimsProvider({ children }: { children: ReactNode }) {
 
   const unreadCount = notifications.filter((n) => !n.read).length
 
-  // COMMENTED OUT - Using mock data instead of API calls
   const refreshClaims = useCallback(async () => {
     try {
-      // COMMENTED OUT - No backend available
-      // const token = await getToken()
-      // if (!token) {
-      //   console.warn("No auth token available")
-      //   setIsLoading(false)
-      //   return
-      // }
+      const token = await getToken()
+      if (!token) {
+        console.warn("No auth token available")
+        setIsLoading(false)
+        return
+      }
 
-      // const [claimsData, notificationsData] = await Promise.all([
-      //   fetchClaims(token),
-      //   fetchNotifications(token),
-      // ])
+      const [claimsData, notificationsData] = await Promise.all([
+        fetchClaims(token),
+        fetchNotifications(token).catch(err => {
+          console.warn("Notifications endpoint not available:", err)
+          return [] // Return empty array if endpoint doesn't exist
+        }),
+      ])
 
-      // Using mock data instead
-      setClaims(MOCK_CLAIMS)
-      setNotifications(MOCK_NOTIFICATIONS)
+      setClaims(claimsData)
+      setNotifications(notificationsData || [])
       setError(null)
     } catch (err) {
       console.error("Failed to load claims:", err)
@@ -72,7 +71,7 @@ export function ClaimsProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [getToken])
 
   // Initial fetch
   useEffect(() => {
@@ -156,6 +155,25 @@ export function ClaimsProvider({ children }: { children: ReactNode }) {
   }, [getToken])
   */
 
+  const refreshClaimById = useCallback(async (claimId: string) => {
+    try {
+      const token = await getToken()
+      if (!token) {
+        console.warn("No auth token available")
+        return
+      }
+
+      const claimData = await fetchClaimById(claimId, token)
+
+      // Update the specific claim in the claims array
+      setClaims((prev) =>
+        prev.map((claim) => claim.id === claimId ? claimData : claim)
+      )
+    } catch (err) {
+      console.error("Failed to refresh claim:", err)
+    }
+  }, [getToken])
+
   const getClaim = useCallback(
     (id: string) => {
       return claims.find((c) => c.id === id)
@@ -189,51 +207,32 @@ export function ClaimsProvider({ children }: { children: ReactNode }) {
     return newClaim
   }, [])
 
-  // COMMENTED OUT - No backend available
   const sendMessage = useCallback(
     async (claimId: string, content: string, attachments: any[] = []) => {
       try {
-        // COMMENTED OUT - No backend available
-        // const token = await getToken()
-        // if (!token) throw new Error("Not authenticated")
+        const token = await getToken()
+        if (!token) throw new Error("Not authenticated")
 
-        // const payload: SendMessagePayload = {
-        //   claimId,
-        //   message: content,
-        //   attachments: attachments.map((a) => ({
-        //     url: a.url,
-        //     fileName: a.fileName,
-        //     fileType: a.fileType,
-        //   })),
-        // }
-
-        // await apiSendMessage(claimId, payload, token)
-
-        // Just update local state with new message
-        const newMessage: ClaimMessage = {
-          id: `msg-${Date.now()}`,
+        const payload: SendMessagePayload = {
           claimId,
-          senderId: "current-user",
-          senderName: "Vous",
-          senderType: "citizen",
-          content,
-          timestamp: new Date().toISOString(),
-          attachments,
+          message: content,
+          attachments: attachments.map((a) => ({
+            url: a.url,
+            fileName: a.fileName,
+            fileType: a.fileType,
+          })),
         }
 
-        setClaims((prev) =>
-          prev.map((claim) =>
-            claim.id === claimId
-              ? { ...claim, messages: [...claim.messages, newMessage], updatedAt: new Date().toISOString() }
-              : claim
-          )
-        )
+        await apiSendMessage(claimId, payload, token)
+
+        // Refresh the specific claim to get updated messages
+        await refreshClaimById(claimId)
       } catch (err) {
         console.error("Failed to send message:", err)
         throw err
       }
     },
-    []
+    [getToken, refreshClaimById]
   )
 
   // COMMENTED OUT - No backend available
@@ -282,6 +281,7 @@ export function ClaimsProvider({ children }: { children: ReactNode }) {
         isLoading,
         error,
         refreshClaims,
+        refreshClaimById,
         getClaim,
         addClaim,
         sendMessage,

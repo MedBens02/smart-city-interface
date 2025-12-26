@@ -88,3 +88,47 @@ export async function sendMessage(
     token
   )
 }
+
+// Simulate service response (for testing without Kafka)
+export async function simulateServiceResponse(
+  claimId: string,
+  data: {
+    serviceType: string
+    operatorId: string
+    operatorName: string
+    message: string
+    serviceReference?: string
+  },
+  token: string
+): Promise<{ messageId: string; timestamp: string }> {
+  return apiRequest<{ messageId: string; timestamp: string }>(
+    `/api/claims/${claimId}/service-response`,
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    },
+    token
+  )
+}
+
+// Simulate status update (for testing without Kafka)
+export async function simulateStatusUpdate(
+  claimId: string,
+  data: {
+    previousStatus: string
+    newStatus: string
+    reason: string
+    operatorId?: string
+    operatorName?: string
+  },
+  token: string
+): Promise<{ messageId: string; timestamp: string; newStatus: string }> {
+  return apiRequest<{ messageId: string; timestamp: string; newStatus: string }>(
+    `/api/claims/${claimId}/status-update`,
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    },
+    token
+  )
+}

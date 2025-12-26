@@ -17,6 +17,7 @@ import { serviceConfigs, type ServiceField } from "@/lib/service-fields"
 import LocationPicker from "./location-picker"
 import QRScannerField from "./qr-scanner-field"
 import { uploadMultipleFiles, type UploadedFile } from "@/lib/upload-helpers"
+import { createClaim } from "@/lib/api/claims"
 
 interface ClaimFormProps {
   onBack: () => void
@@ -161,39 +162,25 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
     URL.revokeObjectURL(url)
   }
 
-  // COMMENTED OUT - No backend available
-  // const submitClaimToAPI = async (payload: any) => {
-  //   try {
-  //     console.log("=== CLAIM SUBMISSION DATA ===")
-  //     console.log(JSON.stringify(payload, null, 2))
-  //     console.log("=============================")
+  const submitClaimToAPI = async (payload: any) => {
+    try {
+      console.log("=== CLAIM SUBMISSION DATA ===")
+      console.log(JSON.stringify(payload, null, 2))
+      console.log("=============================")
 
-  //     const token = await getToken()
-  //     if (!token) {
-  //       console.error("No authentication token available")
-  //       throw new Error("Not authenticated")
-  //     }
+      const token = await getToken()
+      if (!token) {
+        console.error("No authentication token available")
+        throw new Error("Not authenticated")
+      }
 
-  //     const response = await fetch("http://localhost:8080/api/claim/ingest", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         "Authorization": `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify(payload),
-  //     })
-
-  //     if (!response.ok) {
-  //       throw new Error(`API Error: ${response.status} ${response.statusText}`)
-  //     }
-
-  //     return await response.json()
-  //   } catch (error) {
-  //     console.error("Failed to submit claim to API:", error)
-  //     // Don't throw - allow local storage to work even if API fails
-  //     return null
-  //   }
-  // }
+      const response = await createClaim(payload, token)
+      return response
+    } catch (error) {
+      console.error("Failed to submit claim to API:", error)
+      throw error
+    }
+  }
 
   const handleSubmit = async () => {
     setIsSubmitting(true)
@@ -214,33 +201,16 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
 
       setIsUploading(false)
 
-      // Build payload with R2 URLs (for reference, not used with backend)
+      // Build payload with R2 URLs
       const payload = buildClaimPayload(uploadedFiles)
 
-      // Save to file for testing
-      saveJsonToFile(payload)
+      // Submit to API
+      const apiResponse = await submitClaimToAPI(payload)
 
-      // COMMENTED OUT - No backend available
-      // Try to send to API (don't fail if API is down)
-      // const apiResponse = await submitClaimToAPI(payload)
-
-      // Add claim to local state
-      const newClaim = addClaim({
-        userId: user?.id || "",
-        serviceType: commonData.serviceType,
-        serviceName: selectedService?.name || "",
-        title: commonData.title,
-        description: commonData.description,
-        location: commonData.location || null,
-        latitude: commonData.latitude,
-        longitude: commonData.longitude,
-        priority: commonData.priority,
-        images: uploadedFiles.map(f => f.url),
-        extraData: extraData,
-      })
-
-      setSubmittedClaimId(newClaim.id)
-      setIsSubmitted(true)
+      if (apiResponse) {
+        setSubmittedClaimId(apiResponse.claimId)
+        setIsSubmitted(true)
+      }
     } catch (error) {
       console.error("Error in handleSubmit:", error)
       alert("Failed to submit claim. Please try again.")

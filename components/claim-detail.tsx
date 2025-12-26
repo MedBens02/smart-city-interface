@@ -21,6 +21,9 @@ import {
   Calendar,
   User,
   Building2,
+  FileCheck,
+  UserCheck,
+  Mail,
 } from "lucide-react"
 import { formatDistanceToNow, format } from "date-fns"
 import type { ClaimStatus } from "@/lib/types"
@@ -39,16 +42,18 @@ const statusConfig: Record<
     color: string
   }
 > = {
-  pending: { label: "Pending Review", icon: Clock, variant: "secondary", color: "text-amber-600" },
-  in_progress: { label: "In Progress", icon: Loader2, variant: "default", color: "text-blue-600" },
-  resolved: { label: "Resolved", icon: CheckCircle2, variant: "outline", color: "text-green-600" },
-  closed: { label: "Closed", icon: XCircle, variant: "secondary", color: "text-muted-foreground" },
-  rejected: { label: "Rejected", icon: AlertCircle, variant: "destructive", color: "text-destructive" },
+  submitted: { label: "Soumise", icon: FileCheck, variant: "secondary", color: "text-blue-500" },
+  received: { label: "Reçue", icon: Mail, variant: "default", color: "text-indigo-600" },
+  assigned: { label: "Assignée", icon: UserCheck, variant: "default", color: "text-purple-600" },
+  in_progress: { label: "En cours", icon: Loader2, variant: "default", color: "text-blue-600" },
+  pending_info: { label: "Info requise", icon: Clock, variant: "secondary", color: "text-amber-600" },
+  resolved: { label: "Résolue", icon: CheckCircle2, variant: "outline", color: "text-green-600" },
+  rejected: { label: "Rejetée", icon: AlertCircle, variant: "destructive", color: "text-destructive" },
 }
 
 export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
   const { user } = useAuth()
-  const { getClaim, addMessage } = useClaims()
+  const { getClaim, sendMessage } = useClaims()
   const [newMessage, setNewMessage] = useState("")
   const [isSending, setIsSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -84,10 +89,14 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
     if (!newMessage.trim()) return
 
     setIsSending(true)
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    addMessage(claimId, newMessage.trim(), "citizen")
-    setNewMessage("")
-    setIsSending(false)
+    try {
+      await sendMessage(claimId, newMessage.trim(), [])
+      setNewMessage("")
+    } catch (error) {
+      console.error("Failed to send message:", error)
+    } finally {
+      setIsSending(false)
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
