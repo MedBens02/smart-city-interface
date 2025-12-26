@@ -53,16 +53,25 @@ const statusConfig: Record<
 
 export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
   const { user } = useAuth()
-  const { getClaim, sendMessage } = useClaims()
+  const { getClaim, sendMessage, refreshClaimById } = useClaims()
   const [newMessage, setNewMessage] = useState("")
   const [isSending, setIsSending] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const claim = getClaim(claimId)
 
+  // Fetch latest claim data on mount
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [claim?.messages])
+    refreshClaimById(claimId)
+  }, [claimId, refreshClaimById])
+
+  // Poll for new messages every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshClaimById(claimId)
+    }, 1000) // 1 second polling
+
+    return () => clearInterval(interval)
+  }, [claimId, refreshClaimById])
 
   if (!claim) {
     return (
@@ -215,7 +224,6 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
                       </div>
                     )
                   })}
-                  <div ref={messagesEndRef} />
                 </div>
               )}
             </div>
@@ -230,17 +238,17 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
                   onKeyDown={handleKeyDown}
                   rows={2}
                   className="resize-none"
-                  disabled={claim.status === "closed" || claim.status === "rejected"}
+                  disabled={claim.status === "closed" || claim.status === "rejected" || claim.status === "resolved"}
                 />
                 <Button
                   onClick={handleSendMessage}
-                  disabled={!newMessage.trim() || isSending || claim.status === "closed" || claim.status === "rejected"}
+                  disabled={!newMessage.trim() || isSending || claim.status === "closed" || claim.status === "rejected" || claim.status === "resolved"}
                   className="shrink-0"
                 >
                   {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                 </Button>
               </div>
-              {(claim.status === "closed" || claim.status === "rejected") && (
+              {(claim.status === "closed" || claim.status === "rejected" || claim.status === "resolved") && (
                 <p className="mt-2 text-xs text-muted-foreground">
                   This claim is {claim.status}. You cannot send new messages.
                 </p>
