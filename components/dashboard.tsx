@@ -122,7 +122,7 @@ const services = [
     name: "Smart Utilities",
     description: "Gestion intelligente eau et électricité, compteurs",
     icon: Lightbulb,
-    url: "https://utilities.smartcity.gov",
+    url: "http://localhost:3001",
     gradient: "from-amber-400 via-orange-400 to-red-400",
     lightGradient: "from-amber-50 to-orange-50",
     borderColor: "hover:border-amber-400",
