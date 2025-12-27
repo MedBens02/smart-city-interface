@@ -72,7 +72,7 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
   useEffect(() => {
     const interval = setInterval(() => {
       refreshClaimById(claimId)
-    }, 1000)
+    }, 5000)
 
     return () => clearInterval(interval)
   }, [claimId, refreshClaimById])
