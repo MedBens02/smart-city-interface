@@ -61,3 +61,4 @@ logs
 *.tmp
 *.temp
 claim-*.txt
+new_design/
