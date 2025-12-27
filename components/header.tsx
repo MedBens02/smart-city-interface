@@ -33,7 +33,7 @@ export default function Header() {
           </div>
           <div className="text-left">
             <h1 className="text-lg font-semibold text-foreground">Smart City</h1>
-            <p className="text-xs text-muted-foreground">Citizen Portal</p>
+            <p className="text-xs text-muted-foreground">Portail Citoyen</p>
           </div>
         </button>
 
@@ -61,13 +61,13 @@ export default function Header() {
                     onClick={() => markAllNotificationsRead()}
                   >
                     <CheckCheck className="mr-1 h-3 w-3" />
-                    Mark all read
+                    Tout marquer comme lu
                   </Button>
                 )}
               </div>
               <DropdownMenuSeparator />
               {notifications.length === 0 ? (
-                <div className="px-3 py-6 text-center text-sm text-muted-foreground">No notifications</div>
+                <div className="px-3 py-6 text-center text-sm text-muted-foreground">Aucune notification</div>
               ) : (
                 <div className="max-h-80 overflow-y-auto">
                   {notifications.slice(0, 10).map((notification) => (
@@ -108,16 +108,16 @@ export default function Header() {
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem onClick={() => router.push("/profile")}>
                 <Settings className="mr-2 h-4 w-4" />
-                Edit Profile
+                Modifier le Profil
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push("/claims")}>
                 <FileText className="mr-2 h-4 w-4" />
-                My Claims
+                Mes Réclamations
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={logout} className="text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
-                Sign out
+                Se déconnecter
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -223,21 +223,20 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
 
   if (isSubmitted) {
     return (
-      <main className="mx-auto max-w-2xl px-4 py-12">
-        <Card className="text-center">
+      <main className="mx-auto max-w-2xl px-4 sm:px-6 py-12">
+        <Card className="border-border/40 text-center shadow-lg">
           <CardContent className="pt-12 pb-8">
             <div className="mb-6 flex justify-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent/20">
                 <CheckCircle2 className="h-8 w-8 text-accent" />
               </div>
             </div>
-            <h2 className="mb-2 text-2xl font-bold text-foreground">Claim Submitted Successfully</h2>
+            <h2 className="mb-2 text-2xl font-bold text-foreground">Claim Submitted!</h2>
             <p className="mb-6 text-muted-foreground">
-              Your claim has been received. You can track its status and communicate with the service team from your
-              claims page.
+              Your claim has been received and is being reviewed. Track its progress from your claims page.
             </p>
             <p className="mb-8 text-sm text-muted-foreground">
-              Reference Number: <span className="font-mono font-medium text-foreground">{submittedClaimId}</span>
+              Reference Number: <span className="font-mono font-semibold text-foreground">{submittedClaimId}</span>
             </p>
             <Button onClick={onBack}>Return to Dashboard</Button>
           </CardContent>
@@ -247,49 +246,63 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8">
-      <Button variant="ghost" onClick={onBack} className="mb-6">
+    <main className="mx-auto max-w-3xl px-4 sm:px-6 py-8">
+      <Button variant="ghost" onClick={onBack} className="mb-8">
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back to Dashboard
       </Button>
 
       {/* Progress Indicator */}
-      <div className="mb-8">
+      <div className="mb-12">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
-                step >= 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition-all ${
+                step >= 1
+                  ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg"
+                  : "bg-muted text-muted-foreground"
               }`}
             >
               1
             </div>
-            <span className={step >= 1 ? "font-medium text-foreground" : "text-muted-foreground"}>Claim Details</span>
+            <div>
+              <p className={step >= 1 ? "font-semibold text-foreground" : "text-muted-foreground"}>Claim Details</p>
+              <p className="text-xs text-muted-foreground">Basic information</p>
+            </div>
           </div>
-          <div className="mx-4 h-px flex-1 bg-border" />
-          <div className="flex items-center gap-2">
+          <div className={`mx-4 h-1 flex-1 rounded-full ${step >= 2 ? "bg-primary" : "bg-border"}`} />
+          <div className="flex items-center gap-3">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
-                step >= 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition-all ${
+                step >= 2
+                  ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg"
+                  : "bg-muted text-muted-foreground"
               }`}
             >
               2
             </div>
-            <span className={step >= 2 ? "font-medium text-foreground" : "text-muted-foreground"}>Additional Info</span>
+            <div>
+              <p className={step >= 2 ? "font-semibold text-foreground" : "text-muted-foreground"}>Additional Info</p>
+              <p className="text-xs text-muted-foreground">Service-specific</p>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Step 1 */}
       {step === 1 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Submit a Claim</CardTitle>
-            <CardDescription>Provide the details of your issue. Fields marked with * are required.</CardDescription>
+        <Card className="border-border/40 shadow-lg">
+          <CardHeader className="border-b border-border/40 pb-6">
+            <CardTitle className="text-2xl">Submit a Claim</CardTitle>
+            <CardDescription>
+              Tell us what issue you'd like to report. Fields marked with * are required.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="serviceType">Service Type *</Label>
+          <CardContent className="pt-6 space-y-6">
+            <div className="space-y-2.5">
+              <Label htmlFor="serviceType" className="text-sm font-semibold">
+                Service Type *
+              </Label>
               <Select
                 value={commonData.serviceType}
                 onValueChange={(value) => {
@@ -297,8 +310,8 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
                   setExtraData({})
                 }}
               >
-                <SelectTrigger id="serviceType">
-                  <SelectValue placeholder="Select a service" />
+                <SelectTrigger id="serviceType" className="h-10">
+                  <SelectValue placeholder="Select a service..." />
                 </SelectTrigger>
                 <SelectContent>
                   {serviceConfigs.map((service) => (
@@ -310,24 +323,30 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="title">Claim Title *</Label>
+            <div className="space-y-2.5">
+              <Label htmlFor="title" className="text-sm font-semibold">
+                Claim Title *
+              </Label>
               <Input
                 id="title"
                 placeholder="Brief summary of your issue"
                 value={commonData.title}
                 onChange={(e) => setCommonData((prev) => ({ ...prev, title: e.target.value }))}
+                className="h-10"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description *</Label>
+            <div className="space-y-2.5">
+              <Label htmlFor="description" className="text-sm font-semibold">
+                Description *
+              </Label>
               <Textarea
                 id="description"
-                placeholder="Provide detailed information about your issue..."
-                rows={4}
+                placeholder="Please provide detailed information about your issue..."
+                rows={5}
                 value={commonData.description}
                 onChange={(e) => setCommonData((prev) => ({ ...prev, description: e.target.value }))}
+                className="resize-none"
               />
             </div>
 
@@ -347,15 +366,17 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
               }
             />
 
-            <div className="space-y-2">
-              <Label htmlFor="priority">Priorité *</Label>
+            <div className="space-y-2.5">
+              <Label htmlFor="priority" className="text-sm font-semibold">
+                Priorité *
+              </Label>
               <Select
                 value={commonData.priority}
                 onValueChange={(value: "low" | "medium" | "high" | "urgent") =>
                   setCommonData((prev) => ({ ...prev, priority: value }))
                 }
               >
-                <SelectTrigger id="priority">
+                <SelectTrigger id="priority" className="h-10">
                   <SelectValue placeholder="Sélectionner la priorité" />
                 </SelectTrigger>
                 <SelectContent>
@@ -367,12 +388,12 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
+            <div className="space-y-3">
+              <Label className="text-sm font-semibold flex items-center gap-2">
                 <Upload className="h-4 w-4" />
                 Attach Images (Optional)
               </Label>
-              <div className="rounded-lg border border-dashed border-border p-4">
+              <div className="rounded-xl border-2 border-dashed border-border/40 p-6 hover:border-primary/40 transition-colors">
                 <input
                   type="file"
                   accept="image/*"
@@ -381,20 +402,18 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
                   className="hidden"
                   id="image-upload"
                 />
-                <label
-                  htmlFor="image-upload"
-                  className="flex cursor-pointer flex-col items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-                >
-                  <Upload className="h-8 w-8" />
-                  <span>Click to upload images (max 5)</span>
+                <label htmlFor="image-upload" className="flex cursor-pointer flex-col items-center gap-2 text-center">
+                  <Upload className="h-8 w-8 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">Click to upload or drag and drop</span>
+                  <span className="text-xs text-muted-foreground">PNG, JPG up to 5 images</span>
                 </label>
               </div>
 
               {commonData.images.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-2">
+                <div className="flex flex-wrap gap-3 pt-2">
                   {commonData.images.map((file, index) => (
-                    <div key={index} className="relative">
-                      <div className="h-16 w-16 overflow-hidden rounded-lg border border-border bg-muted">
+                    <div key={index} className="relative group">
+                      <div className="h-20 w-20 overflow-hidden rounded-lg border border-border bg-muted">
                         <img
                           src={URL.createObjectURL(file) || "/placeholder.svg"}
                           alt={`Upload ${index + 1}`}
@@ -404,9 +423,9 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
                       <button
                         type="button"
                         onClick={() => removeImage(index)}
-                        className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground"
+                        className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        <X className="h-3 w-3" />
+                        <X className="h-4 w-4" />
                       </button>
                     </div>
                   ))}
@@ -415,7 +434,7 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
             </div>
 
             <div className="flex justify-end pt-4">
-              <Button onClick={() => setStep(2)} disabled={!canProceedToStep2}>
+              <Button onClick={() => setStep(2)} disabled={!canProceedToStep2} size="lg">
                 {hasExtraFields ? (
                   <>
                     Continue
@@ -432,14 +451,14 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
 
       {/* Step 2 */}
       {step === 2 && selectedService && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{selectedService.name} - Additional Information</CardTitle>
+        <Card className="border-border/40 shadow-lg">
+          <CardHeader className="border-b border-border/40 pb-6">
+            <CardTitle className="text-2xl">{selectedService.name} - Additional Information</CardTitle>
             <CardDescription>
               Please provide the following details specific to {selectedService.name.toLowerCase()}.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="pt-6 space-y-6">
             {selectedService.extraFields.map((field) => {
               // Check if field should be displayed based on conditional logic
               if (field.conditionalDisplay) {
@@ -462,11 +481,11 @@ export default function ClaimForm({ onBack }: ClaimFormProps) {
             })}
 
             <div className="flex justify-between pt-4">
-              <Button variant="outline" onClick={() => setStep(1)}>
+              <Button variant="outline" onClick={() => setStep(1)} size="lg">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
               </Button>
-              <Button onClick={handleSubmit} disabled={!canSubmit() || isSubmitting}>
+              <Button onClick={handleSubmit} disabled={!canSubmit() || isSubmitting} size="lg">
                 {isUploading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -525,7 +544,7 @@ function DynamicField({ field, value, onChange }: DynamicFieldProps) {
   }
 
   const label = (
-    <Label htmlFor={field.name}>
+    <Label htmlFor={field.name} className="text-sm font-semibold">
       {field.label} {field.required && "*"}
     </Label>
   )
@@ -533,10 +552,10 @@ function DynamicField({ field, value, onChange }: DynamicFieldProps) {
   switch (field.type) {
     case "select":
       return (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {label}
           <Select value={value} onValueChange={onChange}>
-            <SelectTrigger id={field.name}>
+            <SelectTrigger id={field.name} className="h-10">
               <SelectValue placeholder={`Select ${field.label.toLowerCase()}`} />
             </SelectTrigger>
             <SelectContent>
@@ -552,7 +571,7 @@ function DynamicField({ field, value, onChange }: DynamicFieldProps) {
 
     case "textarea":
       return (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {label}
           <Textarea
             id={field.name}
@@ -566,15 +585,15 @@ function DynamicField({ field, value, onChange }: DynamicFieldProps) {
 
     case "date":
       return (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {label}
-          <Input id={field.name} type="date" value={value} onChange={(e) => onChange(e.target.value)} />
+          <Input id={field.name} type="date" value={value} onChange={(e) => onChange(e.target.value)} className="h-10" />
         </div>
       )
 
     case "number":
       return (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {label}
           <Input
             id={field.name}
@@ -583,7 +602,7 @@ function DynamicField({ field, value, onChange }: DynamicFieldProps) {
             value={value}
             onChange={(e) => handleChange(e.target.value)}
             onBlur={handleBlur}
-            className={validationError ? "border-red-500" : ""}
+            className={validationError ? "h-10 border-red-500" : "h-10"}
           />
           {validationError && <p className="text-sm text-red-500">{validationError}</p>}
         </div>
@@ -602,7 +621,7 @@ function DynamicField({ field, value, onChange }: DynamicFieldProps) {
 
     default:
       return (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {label}
           <Input
             id={field.name}
@@ -611,7 +630,7 @@ function DynamicField({ field, value, onChange }: DynamicFieldProps) {
             value={value}
             onChange={(e) => handleChange(e.target.value)}
             onBlur={handleBlur}
-            className={validationError ? "border-red-500" : ""}
+            className={validationError ? "h-10 border-red-500" : "h-10"}
           />
           {validationError && <p className="text-sm text-red-500">{validationError}</p>}
           {field.placeholder && field.validationRegex && (

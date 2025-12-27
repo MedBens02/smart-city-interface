@@ -27,6 +27,7 @@ import {
   Mail,
 } from "lucide-react"
 import { formatDistanceToNow, format } from "date-fns"
+import { fr } from "date-fns/locale"
 import { groupMessagesByDate } from "@/lib/message-utils"
 import type { ClaimStatus } from "@/lib/types"
 
@@ -44,13 +45,13 @@ const statusConfig: Record<
     color: string
   }
 > = {
-  submitted: { label: "Pending Review", icon: Clock, variant: "secondary", color: "text-amber-600" },
-  received: { label: "Pending Review", icon: Clock, variant: "secondary", color: "text-amber-600" },
-  assigned: { label: "In Progress", icon: Loader2, variant: "default", color: "text-blue-600" },
-  in_progress: { label: "In Progress", icon: Loader2, variant: "default", color: "text-blue-600" },
-  pending_info: { label: "Pending Review", icon: Clock, variant: "secondary", color: "text-amber-600" },
-  resolved: { label: "Resolved", icon: CheckCircle2, variant: "outline", color: "text-green-600" },
-  rejected: { label: "Rejected", icon: AlertCircle, variant: "destructive", color: "text-destructive" },
+  submitted: { label: "En Révision", icon: Clock, variant: "secondary", color: "text-amber-600" },
+  received: { label: "En Révision", icon: Clock, variant: "secondary", color: "text-amber-600" },
+  assigned: { label: "En Cours", icon: Loader2, variant: "default", color: "text-blue-600" },
+  in_progress: { label: "En Cours", icon: Loader2, variant: "default", color: "text-blue-600" },
+  pending_info: { label: "En Révision", icon: Clock, variant: "secondary", color: "text-amber-600" },
+  resolved: { label: "Résolue", icon: CheckCircle2, variant: "outline", color: "text-green-600" },
+  rejected: { label: "Rejetée", icon: AlertCircle, variant: "destructive", color: "text-destructive" },
 }
 
 export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
@@ -82,11 +83,11 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
         <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
           <Button variant="ghost" onClick={onBack} className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Claims
+            Retour aux Réclamations
           </Button>
           <Card>
             <div className="py-12 text-center">
-              <p className="text-muted-foreground">Claim not found</p>
+              <p className="text-muted-foreground">Réclamation introuvable</p>
             </div>
           </Card>
         </main>
@@ -123,7 +124,7 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         <Button variant="ghost" onClick={onBack} className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Claims
+          Retour aux Réclamations
         </Button>
 
         <div className="grid gap-6 lg:grid-cols-3">
@@ -153,16 +154,16 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
               <div className="space-y-3 pt-4 border-t border-border">
                 <div className="flex items-center gap-3 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Created</span>
+                  <span className="text-muted-foreground">Créée le</span>
                   <span className="font-medium text-foreground">
-                    {format(new Date(claim.createdAt), "MMM d, yyyy 'at' h:mm a")}
+                    {format(new Date(claim.createdAt), "d MMM yyyy 'à' HH:mm", { locale: fr })}
                   </span>
                 </div>
 
                 {claim.location && (
                   <div className="flex items-center gap-3 text-sm">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">Location</span>
+                    <span className="text-muted-foreground">Localisation</span>
                     <span className="font-medium text-foreground">{claim.location}</span>
                   </div>
                 )}
@@ -172,7 +173,7 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
             {/* Extra Data Card */}
             {Object.keys(claim.extraData).length > 0 && (
               <Card className="p-6 sm:p-8">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Additional Details</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-4">Détails Supplémentaires</h3>
                 <div className="grid gap-4 sm:grid-cols-2">
                   {Object.entries(claim.extraData).map(([key, value]) => (
                     <div key={key} className="rounded-lg bg-muted/60 p-4">
@@ -205,7 +206,7 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
                 {claim.messages.length === 0 ? (
                   <div className="flex h-32 items-center justify-center text-center">
                     <p className="text-sm text-muted-foreground">
-                      No messages yet. Start a conversation with the service team.
+                      Aucun message pour le moment. Commencez une conversation avec l'équipe de service.
                     </p>
                   </div>
                 ) : (
@@ -272,8 +273,8 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
                   <Textarea
                     placeholder={
                       claim.status === "resolved" || claim.status === "rejected"
-                        ? "This claim is closed. No new messages can be sent."
-                        : "Type your message..."
+                        ? "Cette réclamation est fermée. Aucun nouveau message ne peut être envoyé."
+                        : "Tapez votre message..."
                     }
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
@@ -300,7 +301,7 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
           {/* Sidebar - Quick Info */}
           <div className="lg:col-span-1 space-y-4">
             <Card className="p-4">
-              <h4 className="text-sm font-semibold text-foreground mb-4">Status Timeline</h4>
+              <h4 className="text-sm font-semibold text-foreground mb-4">Chronologie du Statut</h4>
               <div className="space-y-3">
                 <div>
                   <Badge variant={status.variant} className="flex w-fit items-center gap-1 mb-2">
@@ -308,23 +309,23 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
                     {status.label}
                   </Badge>
                   <p className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(claim.updatedAt), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(claim.updatedAt), { addSuffix: true, locale: fr })}
                   </p>
                 </div>
               </div>
             </Card>
 
             <Card className="p-4">
-              <h4 className="text-sm font-semibold text-foreground mb-4">Activity Summary</h4>
+              <h4 className="text-sm font-semibold text-foreground mb-4">Résumé de l'Activité</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Messages</span>
                   <span className="font-medium text-foreground">{claim.messages.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Last Update</span>
+                  <span className="text-muted-foreground">Dernière Mise à Jour</span>
                   <span className="font-medium text-foreground">
-                    {formatDistanceToNow(new Date(claim.updatedAt), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(claim.updatedAt), { addSuffix: true, locale: fr })}
                   </span>
                 </div>
               </div>
