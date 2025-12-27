@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { useClaims } from "@/contexts/claims-context"
 import { Button } from "@/components/ui/button"
@@ -22,9 +22,6 @@ import {
   User,
   Building2,
   MessageSquare,
-  FileCheck,
-  UserCheck,
-  Mail,
 } from "lucide-react"
 import { formatDistanceToNow, format } from "date-fns"
 import { groupMessagesByDate } from "@/lib/message-utils"
@@ -44,37 +41,26 @@ const statusConfig: Record<
     color: string
   }
 > = {
-  submitted: { label: "Pending Review", icon: Clock, variant: "secondary", color: "text-amber-600" },
-  received: { label: "Pending Review", icon: Clock, variant: "secondary", color: "text-amber-600" },
-  assigned: { label: "In Progress", icon: Loader2, variant: "default", color: "text-blue-600" },
+  pending: { label: "Pending Review", icon: Clock, variant: "secondary", color: "text-amber-600" },
   in_progress: { label: "In Progress", icon: Loader2, variant: "default", color: "text-blue-600" },
-  pending_info: { label: "Pending Review", icon: Clock, variant: "secondary", color: "text-amber-600" },
   resolved: { label: "Resolved", icon: CheckCircle2, variant: "outline", color: "text-green-600" },
+  closed: { label: "Closed", icon: XCircle, variant: "secondary", color: "text-muted-foreground" },
   rejected: { label: "Rejected", icon: AlertCircle, variant: "destructive", color: "text-destructive" },
 }
 
 export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
   const { user } = useAuth()
-  const { getClaim, sendMessage, refreshClaimById } = useClaims()
+  const { getClaim, addMessage } = useClaims()
   const [newMessage, setNewMessage] = useState("")
   const [isSending, setIsSending] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const claim = getClaim(claimId)
   const messageGroups = claim ? groupMessagesByDate(claim.messages) : []
 
-  // Fetch latest claim data on mount
   useEffect(() => {
-    refreshClaimById(claimId)
-  }, [claimId, refreshClaimById])
-
-  // Poll for new messages every second
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refreshClaimById(claimId)
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [claimId, refreshClaimById])
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [claim?.messages])
 
   if (!claim) {
     return (
@@ -101,14 +87,10 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
     if (!newMessage.trim()) return
 
     setIsSending(true)
-    try {
-      await sendMessage(claimId, newMessage.trim(), [])
-      setNewMessage("")
-    } catch (error) {
-      console.error("Failed to send message:", error)
-    } finally {
-      setIsSending(false)
-    }
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    addMessage(claimId, newMessage.trim(), "citizen")
+    setNewMessage("")
+    setIsSending(false)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -139,7 +121,7 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
                     <p className="text-sm text-muted-foreground mt-1">{claim.serviceName}</p>
                   </div>
                   <Badge variant={status.variant} className="flex w-fit items-center gap-1 shrink-0">
-                    <StatusIcon className={`h-3 w-3 ${claim.status === "in_progress" || claim.status === "assigned" ? "animate-spin" : ""}`} />
+                    <StatusIcon className={`h-3 w-3 ${claim.status === "in_progress" ? "animate-spin" : ""}`} />
                     {status.label}
                   </Badge>
                 </div>
@@ -220,7 +202,7 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
 
                         <div className="space-y-4">
                           {group.messages.map((message) => {
-                            const isCitizen = message.senderType === "user"
+                            const isCitizen = message.senderType === "citizen"
                             return (
                               <div key={message.id} className={`flex ${isCitizen ? "justify-end" : "justify-start"}`}>
                                 <div
@@ -262,6 +244,7 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
                         </div>
                       </div>
                     ))}
+                    <div ref={messagesEndRef} />
                   </>
                 )}
               </div>
@@ -271,7 +254,7 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
                 <div className="flex gap-2">
                   <Textarea
                     placeholder={
-                      claim.status === "resolved" || claim.status === "rejected"
+                      claim.status === "closed" || claim.status === "rejected"
                         ? "This claim is closed. No new messages can be sent."
                         : "Type your message..."
                     }
@@ -280,12 +263,12 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
                     onKeyDown={handleKeyDown}
                     rows={2}
                     className="resize-none"
-                    disabled={claim.status === "resolved" || claim.status === "rejected"}
+                    disabled={claim.status === "closed" || claim.status === "rejected"}
                   />
                   <Button
                     onClick={handleSendMessage}
                     disabled={
-                      !newMessage.trim() || isSending || claim.status === "resolved" || claim.status === "rejected"
+                      !newMessage.trim() || isSending || claim.status === "closed" || claim.status === "rejected"
                     }
                     className="shrink-0"
                     size="icon"
@@ -304,7 +287,7 @@ export default function ClaimDetail({ claimId, onBack }: ClaimDetailProps) {
               <div className="space-y-3">
                 <div>
                   <Badge variant={status.variant} className="flex w-fit items-center gap-1 mb-2">
-                    <StatusIcon className={`h-3 w-3 ${claim.status === "in_progress" || claim.status === "assigned" ? "animate-spin" : ""}`} />
+                    <StatusIcon className={`h-3 w-3 ${claim.status === "in_progress" ? "animate-spin" : ""}`} />
                     {status.label}
                   </Badge>
                   <p className="text-xs text-muted-foreground">

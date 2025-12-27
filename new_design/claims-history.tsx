@@ -37,12 +37,10 @@ const statusConfig: Record<
     bgColor: string
   }
 > = {
-  submitted: { label: "Pending", icon: Clock, variant: "secondary", bgColor: "bg-amber-50 dark:bg-amber-950/30" },
-  received: { label: "Pending", icon: Clock, variant: "secondary", bgColor: "bg-amber-50 dark:bg-amber-950/30" },
-  assigned: { label: "In Progress", icon: Loader2, variant: "default", bgColor: "bg-blue-50 dark:bg-blue-950/30" },
+  pending: { label: "Pending", icon: Clock, variant: "secondary", bgColor: "bg-amber-50 dark:bg-amber-950/30" },
   in_progress: { label: "In Progress", icon: Loader2, variant: "default", bgColor: "bg-blue-50 dark:bg-blue-950/30" },
-  pending_info: { label: "Pending", icon: Clock, variant: "secondary", bgColor: "bg-amber-50 dark:bg-amber-950/30" },
   resolved: { label: "Resolved", icon: CheckCircle2, variant: "outline", bgColor: "bg-green-50 dark:bg-green-950/30" },
+  closed: { label: "Closed", icon: XCircle, variant: "secondary", bgColor: "bg-gray-50 dark:bg-gray-800/50" },
   rejected: { label: "Rejected", icon: AlertCircle, variant: "destructive", bgColor: "bg-red-50 dark:bg-red-950/30" },
 }
 
@@ -66,9 +64,10 @@ export default function ClaimsHistory({ onBack, onViewClaim }: ClaimsHistoryProp
 
   const statusOptions: Array<{ value: ClaimStatus | "all"; label: string }> = [
     { value: "all", label: "All Claims" },
-    { value: "submitted", label: "Pending" },
+    { value: "pending", label: "Pending" },
     { value: "in_progress", label: "In Progress" },
     { value: "resolved", label: "Resolved" },
+    { value: "closed", label: "Closed" },
     { value: "rejected", label: "Rejected" },
   ]
 
@@ -157,7 +156,7 @@ export default function ClaimsHistory({ onBack, onViewClaim }: ClaimsHistoryProp
                     {/* Status Badge */}
                     <div className="mb-4">
                       <Badge variant={status.variant} className="flex w-fit items-center gap-1">
-                        <StatusIcon className={`h-3 w-3 ${claim.status === "in_progress" || claim.status === "assigned" ? "animate-spin" : ""}`} />
+                        <StatusIcon className={`h-3 w-3 ${claim.status === "in_progress" ? "animate-spin" : ""}`} />
                         {status.label}
                       </Badge>
                     </div>
@@ -189,12 +188,12 @@ export default function ClaimsHistory({ onBack, onViewClaim }: ClaimsHistoryProp
               { label: "Total", value: claims.length, color: "bg-muted" },
               {
                 label: "Pending",
-                value: claims.filter((c) => c.status === "submitted" || c.status === "received" || c.status === "pending_info").length,
+                value: claims.filter((c) => c.status === "pending").length,
                 color: "bg-amber-100 dark:bg-amber-950",
               },
               {
                 label: "In Progress",
-                value: claims.filter((c) => c.status === "in_progress" || c.status === "assigned").length,
+                value: claims.filter((c) => c.status === "in_progress").length,
                 color: "bg-blue-100 dark:bg-blue-950",
               },
               {
@@ -203,9 +202,9 @@ export default function ClaimsHistory({ onBack, onViewClaim }: ClaimsHistoryProp
                 color: "bg-green-100 dark:bg-green-950",
               },
               {
-                label: "Rejected",
-                value: claims.filter((c) => c.status === "rejected").length,
-                color: "bg-red-100 dark:bg-red-950",
+                label: "Closed",
+                value: claims.filter((c) => c.status === "closed").length,
+                color: "bg-gray-200 dark:bg-gray-800",
               },
             ].map((stat) => (
               <div key={stat.label} className={`rounded-lg ${stat.color} p-4 text-center`}>

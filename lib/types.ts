@@ -7,7 +7,7 @@ export interface ClaimMessage {
   claimId: string
   senderId: string
   senderName: string
-  senderType: "citizen" | "service"
+  senderType: "user" | "service"
   content: string
   timestamp: string
   attachments?: Array<{
